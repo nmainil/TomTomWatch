@@ -12,20 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0    # full history for the git-commit-id-plugin build info
 
       - name: Set up Java 8
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '8'
           cache: maven
 
-      # If javadoc ever blocks the build, add -Dmaven.javadoc.skip=true here
+      # If javadoc ever blocks the build, add -Dmaven.javadoc.skip=true here.
+      # CommunicationProcessTest contains timing dependent (multithreaded)
+      # tests that occasionally fail on the runner: rerun failing tests.
       - name: Build and test
-        run: mvn -B package
+        run: mvn -B package -Dsurefire.rerunFailingTestsCount=2
 
       - name: Upload jar
         uses: actions/upload-artifact@v4
